@@ -1,4 +1,4 @@
-import selenium,requests,time
+import selenium,time
 from datetime import datetime
 from datetime import date
 from selenium import webdriver
