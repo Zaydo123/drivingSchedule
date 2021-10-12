@@ -6,4 +6,4 @@ also open locations.txt and change the location names if you'd like
 ```
 pip install selenium
 ```
-![Screenshot](https://discord.com/channels/@me/887900926847893567/897347593435217970)
+![Screenshot](ss.png)
