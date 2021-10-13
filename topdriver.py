@@ -1,5 +1,6 @@
-import selenium,time
+import selenium,time,colorama,os
 from datetime import datetime
+from colorama import Fore, Back, init
 from datetime import date
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
@@ -9,23 +10,26 @@ from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import TimeoutException
 import smtplib 
 
+recipients=['LIST OF EMAILS']
+
+init(autoreset=True)
+os.system("cls")
+os.system("color 48")
 def email(location):
     try: 
-        #Create your SMTP session 
+        message=f"""
+Appointment Found :
+{location} --- https://www.topdriversignals.com/Student/StudentLogin.aspx
+        """
         smtp = smtplib.SMTP('smtp.gmail.com', 587) 
-        #Use TLS to add security 
         smtp.starttls() 
-        #User Authentication 
-        smtp.login("themanishereinch@gmail.com","Zayd2005!")
-        #Defining The Message 
-        message = location
-        #Sending the Email
-        smtp.sendmail("themanishereinch@gmail.com", "zalzein3126@stu.hinsdale86.org",message) 
-        #Terminating the session 
+        smtp.login("SENDER EMAIL ADDRESS","SENDER EMAIL PASSWORD")
+        for recipient in recipients:
+            smtp.sendmail("SENDER EMAIL ADDRESS", recipient,message) 
         smtp.quit() 
         print ("Email sent successfully!") 
     except Exception as ex: 
-        print("Something went wrong....",ex) 
+        print(Fore.BLACK+"Something went wrong....",ex)
 
 with open('locations.txt','r') as f:
     locations = f.read().splitlines()
@@ -48,15 +52,18 @@ def look_through_schedule():
             time.sleep(.4)
             dropdown = driver.find_element_by_id('divECs').click()
             selected_school=driver.find_element_by_link_text(locations[_]).click()
-            print(locations[_])
+            print(Back.RED+f"Checking : {locations[_]}")
             driver.find_element_by_xpath('//*[@id="btnRefinesearch"]').click()
             try:
                 time.sleep(7)
                 alert = driver.find_element_by_id("OpenSlotdata").text
-                print(alert)
-            except:
+                now = datetime.now()
+                timenow = now.strftime("%d/%m/%Y %H:%M:%S")
+                print(Back.RED+Fore.WHITE+timenow+' '+alert)
+            except Exception as e:
+                print(e)
                 alert='???'
-                print("Possible Appointment Available")
+                print(Back.RED+Fore.LIGHTWHITE_EX+"\n\nPossible Appointment Available\n\n")
             if alert=="No appointment is available for your search.":
                 log(alert)
             else:
@@ -64,19 +71,20 @@ def look_through_schedule():
                 log(f"APPOINTMENT FOUND!!!!! {locations[_]}")
         driver.quit()
     except Exception as e:
-        print(e)
-        log("\n\n"+e+"\n\n")
+        print(Back.RED+Fore.RED+e)
+        log(e)
         look_through_schedule()
 def main():
     #on homepage after login
     try:
         WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, "/html/body/div[6]/div[2]/div[1]/div[2]/div[3]/div[2]/div/div[2]/div[2]/div[1]/a")))
+        print(Back.RED+Fore.GREEN+f'Logged In : {usr}')
         driver.find_element_by_xpath("/html/body/div[6]/div[2]/div[1]/div[2]/div[3]/div[2]/div/div[2]/div[2]/div[1]/a").click() #clicks onto calendar page
         time.sleep(10)
         look_through_schedule()
     except Exception as e:
-        print(e)
-        log("\n\n"+e+"\n\n")
+        print(Back.RED+Fore.BLUE+e)
+        log(e)
         driver.save_screenshot("err.png")
 
 def login():
@@ -86,12 +94,13 @@ def login():
     main()
 
 while True:
-    usr = "Alz245861"
-    passwd = "522026532"
-    chrome_options = webdriver.ChromeOptions()
-    #chrome_options.add_argument("--headless")
-    chrome_options.add_argument("--disable-extensions")
-    driver = webdriver.Chrome(chrome_options=chrome_options)
+    usr = "TOP DRIVER USERNAME"
+    passwd = "TOP DRIVER PASSWORD"
+    options = webdriver.ChromeOptions()
+    #options.add_argument("--headless")
+    options.add_experimental_option('excludeSwitches', ['enable-logging'])
+    options.add_argument("--disable-extensions")
+    driver = webdriver.Chrome(options=options)
     driver.get("https://www.topdriversignals.com/Student/StudentLogin.aspx")
     driver.minimize_window()
     login()
